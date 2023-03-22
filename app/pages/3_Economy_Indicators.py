@@ -19,9 +19,24 @@ all_indicators = {
 }
 
 for indicator in indicators:
-    all_indicators[indicator['geo']].update(
-        {f"{indicator['symbol']} - {indicator['name']}": indicator['symbol']}
+    name = indicator['name'].replace(f"{indicator['geo']} - ", "")
+    symbol = indicator['symbol']
+    all_indicators[indicator['geo']].update({name: symbol})
+
+
+def create_indicator_graph(data: dict, plot_title: str, x_name: str, y_name: str):
+    '''Plot graph for given indicator data.'''
+
+    fig = px.line(data_frame=data, x='dates', y='values')
+
+    fig.update_layout(
+        xaxis_title=x_name,
+        yaxis_title=y_name,
+        title_text=plot_title,
+        title_font_size=30
     )
+
+    st.plotly_chart(fig, theme='streamlit', use_container_width=True)
 
 tab_in, tab_us = st.tabs([":flag-in: - **India**", ":flag-us: - **United States**"])
 
@@ -35,7 +50,12 @@ with tab_in:
     )
 
     selected_indian_indicator = all_indicators['India'][option]
-    st.line_chart(economy_data[selected_indian_indicator], x='dates', y='values')
+    create_indicator_graph(
+        data=economy_data[selected_indian_indicator], 
+        plot_title=option,
+        x_name="X",
+        y_name="Y"
+    )
 
 with tab_us:
     st.subheader("United states economy indicators")
@@ -47,4 +67,9 @@ with tab_us:
     )
 
     selected_us_indicator = all_indicators['United States'][option]
-    st.line_chart(economy_data[selected_us_indicator], x='dates', y='values')
+    create_indicator_graph(
+        data=economy_data[selected_us_indicator], 
+        plot_title=option,
+        x_name="X",
+        y_name="Y"
+    )
